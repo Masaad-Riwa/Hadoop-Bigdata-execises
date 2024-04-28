@@ -20,10 +20,7 @@ public class DriverBigData extends Configured implements Tool {
 
   @Override
   public int run(String[] args) throws Exception {
-    if (args.length != 3) {
-      System.err.println("Usage: DriverBigData <num_reducers> <input_path> <output_path>");
-      System.exit(-1);
-    }
+    int exitCode;
 
     int numberOfReducers = Integer.parseInt(args[0]);
     Path inputPath = new Path(args[1]);
@@ -53,9 +50,9 @@ public class DriverBigData extends Configured implements Tool {
 
     job.setNumReduceTasks(numberOfReducers);
 
-    boolean jobCompletionStatus = job.waitForCompletion(true);
+    exitCode = job.waitForCompletion(true) ? 0 : 1;
 
-    return jobCompletionStatus ? 0 : 1;
+    return exitCode;
   }
 
   public static void main(String[] args) throws Exception {
