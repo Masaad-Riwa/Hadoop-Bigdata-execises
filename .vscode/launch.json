@@ -17,7 +17,38 @@
             "mainClass": "it.polito.bigdata.hadoop.DriverBigData",
             "projectName": "MapReduceProject",
             "args": [
-                "2", "example_data", "ex_out", "test_prefix"
+                "2", "MapReduceBasicProject/ex1_data/document.txt", "ex_out1", "test_prefix"
+            ]
+        },
+        {
+            "type": "java",
+            "name": "DriverBigData",
+            "request": "launch",
+            "mainClass": "epita.fr.Exercise1.DriverBigData",
+            "projectName": "MapReduceProject",
+            "args": [
+                "2", "MapReduceBasicProject/data/ex1_data/document.txt", "ex_out/ex_out1", "test_prefix"
+            ]
+        }
+        ,
+        {
+            "type": "java",
+            "name": "DriverBigData",
+            "request": "launch",
+            "mainClass": "epita.fr.Exercise2.DriverBigData",
+            "projectName": "MapReduceProject",
+            "args": [
+                "2", "MapReduceBasicProject/data/ex2_data", "ex_out/ex_out2", "test_prefix"
+            ]
+        },
+        {
+            "type": "java",
+            "name": "DriverBigData",
+            "request": "launch",
+            "mainClass": "epita.fr.Exercise3.DriverBigData",
+            "projectName": "MapReduceProject",
+            "args": [
+                "2", "MapReduceBasicProject/data/ex3_data/document.txt", "ex_out/ex_out3", "test_prefix"
             ]
         }
     ]
