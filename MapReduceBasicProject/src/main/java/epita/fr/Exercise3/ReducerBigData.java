@@ -8,16 +8,24 @@ import org.apache.hadoop.mapreduce.Reducer;
 /**
  * Word Count - Reducer
  */
-class ReducerBigData extends Reducer<Text, IntWritable, Text, IntWritable> {
+class ReducerBigData extends
+		Reducer<Text, // Input key type
+				IntWritable, // Input value type
+				Text, // Output key type
+				IntWritable> { // Output value type
 
-    @Override
-    protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
-        int count = 0;
+	@Override
+	protected void reduce(Text key, // Input key type
+			Iterable<IntWritable> values, // Input value type
+			Context context) throws IOException, InterruptedException {
 
-        for (IntWritable value : values) {
-            count += value.get();
-        }
+		int numDays = 0;
 
-        context.write(key, new IntWritable(count));
-    }
+		// Iterate over the set of values and sum them
+		for (IntWritable value : values) {
+			numDays = numDays + value.get();
+		}
+
+		context.write(new Text(key), new IntWritable(numDays));
+	}
 }

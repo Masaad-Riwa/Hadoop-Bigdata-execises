@@ -9,25 +9,30 @@ import org.apache.hadoop.mapreduce.Mapper;
 /**
  * Word Count - Mapper
  */
-class MapperBigData extends Mapper<LongWritable, Text, Text, IntWritable> {
+class MapperBigData extends Mapper<
+                    Text, 		  // Input key type
+                    Text, 		  // Input value type
+                    Text,         // Output key type
+                    IntWritable> {// Output value type
+    
+	private static double PM10Threshold = 50.0;
+	
+    protected void map(
+            Text key,   		// Input key type
+            Text value,         // Input value type
+            Context context) throws IOException, InterruptedException {
 
-    private static final IntWritable ONE = new IntWritable(1);
-
-    @Override
-    protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-        // Split the line by the tab delimiter
-        String[] parts = value.toString().split("\t");
-
-        if (parts.length == 2) {
-            String sensorId = parts[0];
-            double pm10Value = Double.parseDouble(parts[1]);
-
-            // Get the threshold from the job configuration
-            int threshold = context.getConfiguration().getInt("threshold", 0);
-
-            if (pm10Value > threshold) {
-                context.write(new Text(sensorId), ONE);
+            // Extract sensor and date from the key
+            String[] fields = key.toString().split(",");
+                        
+            String sensor_id=fields[0];
+            Double PM10Level= Double.parseDouble(value.toString());
+            
+            // Compare the value of PM10 with the threshold value
+            if (PM10Level.compareTo(PM10Threshold)>0)
+            {
+                // emit the pair (sensor_id, 1)
+                context.write(new Text(sensor_id), new IntWritable(1));
             }
-        }
     }
 }
