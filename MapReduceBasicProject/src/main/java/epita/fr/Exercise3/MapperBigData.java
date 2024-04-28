@@ -22,15 +22,14 @@ class MapperBigData extends Mapper<
             Context context) throws IOException, InterruptedException {
 
             // Extract sensor and date from the key
-            String[] fields = key.toString().split(",");
+            String[] fields = key.toString().split("\\s*,\\s*");
                         
-            String sensor_id=fields[0];
-            Double PM10Level= Double.parseDouble(value.toString());
+            String sensor_id = fields[0];
+            Double PM10Level= Double.parseDouble(fields[2]);
             
             // Compare the value of PM10 with the threshold value
-            if (PM10Level.compareTo(PM10Threshold)>0)
+            if (PM10Level > PM10Threshold)
             {
-                // emit the pair (sensor_id, 1)
                 context.write(new Text(sensor_id), new IntWritable(1));
             }
     }

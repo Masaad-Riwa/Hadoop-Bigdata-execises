@@ -32,7 +32,7 @@ public class DriverBigData extends Configured implements Tool {
         Job job = Job.getInstance(conf);
 
         // Assign a name to the job
-        job.setJobName("PM10 Pollution Analysis");
+        job.setJobName("Ex3: PM10 Pollution Analysis");
 
         // Set paths for input and output
         FileInputFormat.addInputPath(job, new Path(args[1]));
