@@ -4,33 +4,31 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.io.LongWritable;
 
 /**
  * Exercise 4 - Mapper
  */
-class MapperBigData extends
-		Mapper<Text, // Input key type
-				Text, // Input value type
-				Text, // Output key type
-				Text> { // Output value type
+class MapperBigData extends Mapper<LongWritable, Text, Text, Text> {
 
-	private static final double PM10Threshold = 50.0;
+    @Override
+    protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+        // Split the input line into fields: zoneId, date, pm10Value
+        String[] fields = value.toString().split("\\s*,\\s*");
 
-	protected void map(Text key, // Input key type
-			Text value, // Input value type
-			Context context) throws IOException, InterruptedException {
+        // Extract zoneId, date, and pm10Value from the fields
+        String zoneId = fields[0];
+        String date = fields[1];
+        double pm10Value = Double.parseDouble(fields[2]);
 
-		// Extract zone and date from the key
-		String[] fields = key.toString().split(",");
-
-		String zone = fields[0];
-		String date = fields[1];
-		Double PM10Level = new Double(value.toString());
-
-		// Compare the value of PM10 with the threshold value
-		if (PM10Level > PM10Threshold) {
-			// emit the pair (zoneID, date)
-			context.write(new Text(zone), new Text(date));
-		}
+        // Emit key-value pair with zoneId as key and date as value
+        try{
+		if (pm10Value > 50.0) { // Check if PM10 value exceeds threshold
+            context.write(new Text(zoneId), new Text(date));
+        }
+		} catch (Exception e) {
+		System.err.println("Error during context.write: " + e.getMessage());
+		e.printStackTrace(); // This will log the stack trace
 	}
+    }
 }

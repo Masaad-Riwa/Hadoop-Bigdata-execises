@@ -48,7 +48,7 @@
             "mainClass": "epita.fr.Exercise3.DriverBigData",
             "projectName": "MapReduceProject",
             "args": [
-                "1", "MapReduceBasicProject/data/ex3_data/document.txt", "ex_out/ex_out3", "test_prefix"
+                "1", "MapReduceBasicProject/data/ex3_data", "ex_out/ex_out3", "test_prefix"
             ]
         },
         {
@@ -99,6 +99,16 @@
             "projectName": "MapReduceProject",
             "args": [
                 "1", "MapReduceBasicProject/data/ex8_data/document.txt", "ex_out/ex_out8", "test_prefix"
+            ]
+        },
+        {
+            "type": "java",
+            "name": "MapperBigData",
+            "request": "launch",
+            "mainClass": "epita.fr.Exercise3.DriverBigData",
+            "projectName": "MapReduceProject",
+            "args": [
+                "1", "MapReduceBasicProject/data/ex3_data/document.txt", "ex_out/ex_out3", "test_prefix"
             ]
         }
         

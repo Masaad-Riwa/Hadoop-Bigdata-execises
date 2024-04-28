@@ -4,32 +4,25 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Exercise 4 - Reducer
  */
-class ReducerBigData extends
-		Reducer<Text, // Input key type
-				Text, // Input value type
-				Text, // Output key type
-				Text> { // Output value type
+class ReducerBigData extends Reducer<Text, Text, Text, Text> {
 
-	@Override
-	protected void reduce(Text key, // Input key type
-			Iterable<Text> values, // Input value type
-			Context context) throws IOException, InterruptedException {
+    @Override
+    protected void reduce(Text key, Iterable<Text> values, Context context)
+            throws IOException, InterruptedException {
+        List<String> datesAboveThreshold = new ArrayList<>();
 
-		String aboveThresholdDates = new String();
+        // Collect the dates where PM10 value exceeds threshold
+        for (Text value : values) {
+            datesAboveThreshold.add(value.toString());
+        }
 
-		// Iterate over the set of values and concatenate them
-		for (Text date : values) {
-			if (aboveThresholdDates.length() == 0)
-				aboveThresholdDates = new String(date.toString());
-			else
-				aboveThresholdDates = aboveThresholdDates.concat("," 
-			+ date.toString());
-		}
-
-		context.write(new Text(key), new Text(aboveThresholdDates));
-	}
+        // Emit key-value pair with zoneId as key and list of dates as value
+        context.write(key, new Text(datesAboveThreshold.toString()));
+    }
 }
