@@ -1,38 +1,33 @@
 package epita.fr.Exercise3;
 
 import java.io.IOException;
-
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
 /**
- * Exercise 3 - Mapper
+ * Word Count - Mapper
  */
-class MapperBigData extends Mapper<
-                    Text, 		  // Input key type
-                    Text, 		  // Input value type
-                    Text,         // Output key type
-                    IntWritable> {// Output value type
-    
-    private static final double PM10Threshold = 50.0;
-	
-    protected void map(
-            Text key,   		// Input key type
-            Text value,         // Input value type
-            Context context) throws IOException, InterruptedException {
+class MapperBigData extends Mapper<LongWritable, Text, Text, IntWritable> {
 
-            // Extract sensor and date from the key
-            String[] fields = key.toString().split(",");
-                        
-            String sensor_id=fields[0];
-            double PM10Level = Double.parseDouble(value.toString());
-            
-            // Compare the value of PM10 with the threshold value
-            if (PM10Level > PM10Threshold)
-            {
-                // emit the pair (sensor_id, 1)
-                context.write(new Text(sensor_id), new IntWritable(1));
+    private static final IntWritable ONE = new IntWritable(1);
+
+    @Override
+    protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+        // Split the line by the tab delimiter
+        String[] parts = value.toString().split("\t");
+
+        if (parts.length == 2) {
+            String sensorId = parts[0];
+            double pm10Value = Double.parseDouble(parts[1]);
+
+            // Get the threshold from the job configuration
+            int threshold = context.getConfiguration().getInt("threshold", 0);
+
+            if (pm10Value > threshold) {
+                context.write(new Text(sensorId), ONE);
             }
+        }
     }
 }

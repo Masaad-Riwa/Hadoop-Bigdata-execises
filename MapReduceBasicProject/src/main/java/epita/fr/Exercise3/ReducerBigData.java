@@ -1,32 +1,23 @@
 package epita.fr.Exercise3;
 
 import java.io.IOException;
-
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
 /**
- * Exercise 3 - Reducer
+ * Word Count - Reducer
  */
-class ReducerBigData extends
-		Reducer<Text, // Input key type
-				IntWritable, // Input value type
-				Text, // Output key type
-				IntWritable> { // Output value type
+class ReducerBigData extends Reducer<Text, IntWritable, Text, IntWritable> {
 
-	@Override
-	protected void reduce(Text key, // Input key type
-			Iterable<IntWritable> values, // Input value type
-			Context context) throws IOException, InterruptedException {
+    @Override
+    protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+        int count = 0;
 
-		int numDays = 0;
+        for (IntWritable value : values) {
+            count += value.get();
+        }
 
-		// Iterate over the set of values and sum them
-		for (IntWritable value : values) {
-			numDays = numDays + value.get();
-		}
-
-		context.write(new Text(key), new IntWritable(numDays));
-	}
+        context.write(key, new IntWritable(count));
+    }
 }

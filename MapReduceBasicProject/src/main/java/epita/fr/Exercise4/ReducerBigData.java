@@ -1,34 +1,35 @@
 package epita.fr.Exercise4;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
 /**
- * Reducer for PM10 pollution analysis per city zone
+ * Exercise 4 - Reducer
  */
-public class ReducerBigData extends Reducer<
-    Text, // Input key type
-    Text, // Input value type
-    Text, // Output key type
-    Text> { // Output value type
+class ReducerBigData extends
+		Reducer<Text, // Input key type
+				Text, // Input value type
+				Text, // Output key type
+				Text> { // Output value type
 
-    @Override
-    protected void reduce(
-            Text key,  // Input key type
-            Iterable<Text> values,  // Input value type
-            Context context) throws IOException, InterruptedException {
+	@Override
+	protected void reduce(Text key, // Input key type
+			Iterable<Text> values, // Input value type
+			Context context) throws IOException, InterruptedException {
 
-        ArrayList<String> highPM10Dates = new ArrayList<>();
+		String aboveThresholdDates = new String();
 
-        // Add each date with PM10 above threshold to the list
-        for (Text value : values) {
-            highPM10Dates.add(value.toString());
-        }
+		// Iterate over the set of values and concatenate them
+		for (Text date : values) {
+			if (aboveThresholdDates.length() == 0)
+				aboveThresholdDates = new String(date.toString());
+			else
+				aboveThresholdDates = aboveThresholdDates.concat("," 
+			+ date.toString());
+		}
 
-        // Emit the zone and the list of dates
-        context.write(key, new Text(highPM10Dates.toString()));
-    }
+		context.write(new Text(key), new Text(aboveThresholdDates));
+	}
 }
