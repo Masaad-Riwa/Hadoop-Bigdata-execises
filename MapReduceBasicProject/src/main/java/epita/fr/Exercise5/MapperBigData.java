@@ -21,7 +21,7 @@ public class MapperBigData extends Mapper<
             Text value,         // Input value type
             Context context) throws IOException, InterruptedException {
 
-            // Split the CSV line into parts
+            // Split the csv line into parts
             String[] parts = value.toString().split(",");
             if (parts.length != 3) {
                 return;  // Skip lines with unexpected format
