@@ -1,65 +1,98 @@
 package epita.fr.Exercise8;
 
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 /**
- * MapReduce program to calculate total monthly income
+ * MapReduce program
  */
 public class DriverBigData extends Configured implements Tool {
 
-  @Override
-  public int run(String[] args) throws Exception {
-    if (args.length != 3) {
-      System.err.println("Usage: DriverBigData <num_reducers> <input_path> <output_path>");
-      System.exit(-1);
-    }
+	@Override
+	public int run(String[] args) throws Exception {
 
-    int numberOfReducers = Integer.parseInt(args[0]);
-    Path inputPath = new Path(args[1]);
-    Path outputDir = new Path(args[2]);
-    
-    Configuration conf = this.getConf();
+		Path inputPath;
+		Path outputDir;
+		int numberOfReducers;
+		int exitCode;
 
-    Job job = Job.getInstance(conf);
+		// Parse the parameters
+		numberOfReducers = Integer.parseInt(args[0]);
+		inputPath = new Path(args[1]);
+		outputDir = new Path(args[2]);
 
-    job.setJobName("Exercise #8 - Total Monthly Income");
+		Configuration conf = this.getConf();
 
-    FileInputFormat.addInputPath(job, inputPath);
-    FileOutputFormat.setOutputPath(job, outputDir);
+		// First job
 
-    job.setJarByClass(DriverBigData.class);
+		// Define a new job
+		Job job = Job.getInstance(conf);
 
-    job.setInputFormatClass(TextInputFormat.class);
-    job.setOutputFormatClass(TextOutputFormat.class);
-       
-    job.setMapperClass(MapperBigData.class);
-    job.setMapOutputKeyClass(Text.class);
-    job.setMapOutputValueClass(IntWritable.class);
+		// Assign a name to the job
+		job.setJobName("Exercise #8 - Single Job");
 
-    job.setReducerClass(ReducerBigData.class);
-    job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(IntWritable.class);
+		// Set path of the input file/folder (if it is a folder, the job reads
+		// all the files in the specified folder) for this job
+		FileInputFormat.addInputPath(job, inputPath);
 
-    job.setNumReduceTasks(numberOfReducers);
+		// Set path of the output folder for this job
+		FileOutputFormat.setOutputPath(job, outputDir);
 
-    boolean jobCompletionStatus = job.waitForCompletion(true);
+		// Specify the class of the Driver for this job
+		job.setJarByClass(DriverBigData.class);
 
-    return jobCompletionStatus ? 0 : 1;
-  }
+		// Set job input format
+		job.setInputFormatClass(KeyValueTextInputFormat.class);
 
-  public static void main(String[] args) throws Exception {
-    int exitCode = ToolRunner.run(new Configuration(), new DriverBigData(), args);
-    System.exit(exitCode);
-  }
+		// Set job output format
+		job.setOutputFormatClass(TextOutputFormat.class);
+
+		// Set map class
+		job.setMapperClass(MapperBigData.class);
+
+		// Set map output key and value classes
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(MonthIncome.class);
+
+		// Set reduce class
+		job.setReducerClass(ReducerBigData.class);
+
+		// Set reduce output key and value classes
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(DoubleWritable.class);
+
+		// Set number of reducers
+		job.setNumReduceTasks(numberOfReducers);
+
+		// Execute the job and wait for completion
+		if (job.waitForCompletion(true) == true)
+			exitCode = 0;
+		else
+			exitCode = 1;
+
+		return exitCode;
+	}
+
+	/**
+	 * Main of the driver
+	 */
+
+	public static void main(String args[]) throws Exception {
+		// Exploit the ToolRunner class to "configure" and run the Hadoop
+		// application
+		int res = ToolRunner.run(new Configuration(), new DriverBigData(), args);
+
+		System.exit(res);
+	}
 }

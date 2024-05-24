@@ -1,32 +1,27 @@
 package epita.fr.Exercise3;
 
-import java.io.IOException;
-
-import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
-/**
- * Exercise 3 - Reducer
- */
-class ReducerBigData extends
-		Reducer<Text, // Input key type
-				IntWritable, // Input value type
-				Text, // Output key type
-				IntWritable> { // Output value type
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
-	@Override
-	protected void reduce(Text key, // Input key type
-			Iterable<IntWritable> values, // Input value type
-			Context context) throws IOException, InterruptedException {
+public class ReducerBigData extends Reducer<Text, Text, Text, LongWritable> {
 
-		int numDays = 0;
-
-		// Iterate over the set of values and sum them
-		for (IntWritable value : values) {
-			numDays = numDays + value.get();
-		}
-
-		context.write(new Text(key), new IntWritable(numDays));
-	}
+    @Override
+    protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+        // If there's at least one record for this sensor, write it to the output
+        Set<String> uniqueValues = new HashSet<>();
+        
+        for (Text value : values) {
+            uniqueValues.add(value.toString());
+            System.out.println("reducer:" + value.toString());
+        }
+        
+        if (uniqueValues.contains("exceeded")) {
+            context.write(key, new LongWritable(1));
+        }
+    }
 }

@@ -4,44 +4,32 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.io.LongWritable;
 
 /**
- * Mapper for PM10 pollution analysis per city zone
+ * Exercise 4 - Mapper
  */
-public class MapperBigData extends Mapper<
-                    Object, 		  // Input key type
-                    Text, 		  // Input value type
-                    Text,         // Output key type
-                    Text> {        // Output value type
-    
-    private static final double PM10Threshold = 50.0;
+class MapperBigData extends Mapper<LongWritable, Text, Text, Text> {
 
     @Override
-    protected void map(
-            Object key,   		// Input key type
-            Text value,         // Input value type
-            Context context) throws IOException, InterruptedException {
+    protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+		try{
+		System.out.println(value.toString());
+		String[] parts = value.toString().split("\\t");
+		System.out.println("parts" + parts);
+        String zoneId = parts[0].split(",")[0];
+		String date = parts[0].split(",")[1];
+        double pm10Value = Double.parseDouble(parts[1]);
 
-            // Extract zone and date from the input line
-            String[] fields = value.toString().split(",");
-            if (fields.length != 2) {
-                return;
-            }
-
-            String zoneId = fields[0];
-            String[] dateValue = fields[1].split("\t");
-
-            if (dateValue.length != 2) {
-                return;
-            }
-
-            String date = dateValue[0];
-            double PM10Level = Double.parseDouble(dateValue[1]);
-
-            // Check if PM10 level exceeds the threshold
-            if (PM10Level > PM10Threshold) {
-                // Emit the pair (zoneId, date)
-                context.write(new Text(zoneId), new Text(date));
-            }
+		System.out.println(pm10Value + " " + date);
+        // Emit key-value pair with zoneId as key and date as value
+		if (pm10Value > 50.0) { // Check if PM10 value exceeds threshold
+            context.write(new Text(zoneId), new Text(date));
+			System.out.println("aaaaa");
+		}
+	 } catch (Exception e) {
+		System.err.println("Error during context.write: " + e.getMessage());
+		e.printStackTrace(); 
+		}
     }
 }

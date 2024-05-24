@@ -1,33 +1,52 @@
 package epita.fr.Exercise8;
 
+
 import java.io.IOException;
-import org.apache.hadoop.io.IntWritable;
+import java.util.HashMap;
+import java.util.Map.Entry;
+
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
 /**
- * Reducer for calculating total monthly income
+ * Exercise 8 - Reducer
  */
-public class ReducerBigData extends Reducer<
-    Text, // Input key type
-    IntWritable, // Input value type
-    Text, // Output key type
-    IntWritable> { // Output value type
+class ReducerBigData extends Reducer<Text, // Input key type
+		MonthIncome, // Input value type
+		Text, // Output key type
+		DoubleWritable> { // Output value type
 
-    @Override
-    protected void reduce(
-            Text key,  // Input key type
-            Iterable<IntWritable> values,  // Input value type
-            Context context) throws IOException, InterruptedException {
+	@Override
+	protected void reduce(Text key, // Input key type
+			Iterable<MonthIncome> values, // Input value type
+			Context context) throws IOException, InterruptedException {
 
-        int totalIncome = 0;
+		// Store in the hashmap 
+		HashMap<String, Double> totalMonthIncome = new HashMap<String, Double>();
 
-        // Sum all the daily incomes for the month
-        for (IntWritable value : values) {
-            totalIncome += value.get();
-        }
+		String year = key.toString();
+ 
+		double totalYearlyIncome = 0;
+		int countMonths = 0;
 
-        // Emit the month and the total income
-        context.write(key, new IntWritable(totalIncome));
-    }
+		for (MonthIncome value : values) {
+			Double income = totalMonthIncome.get(value.getMonthID());
+
+			if (income != null) {
+				totalMonthIncome.put(new String(value.getMonthID()), new Double(value.getIncome() + income));
+			} else {
+				totalMonthIncome.put(new String(value.getMonthID()), new Double(value.getIncome()));
+
+				countMonths++;
+			}
+			totalYearlyIncome = totalYearlyIncome + value.getIncome();
+		}
+
+		for (Entry<String, Double> pair : totalMonthIncome.entrySet()) {
+			context.write(new Text(year + "-" + pair.getKey()), new DoubleWritable(pair.getValue()));
+		}
+		context.write(new Text(year), new DoubleWritable(totalYearlyIncome / countMonths));
+
+	}
 }
